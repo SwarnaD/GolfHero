@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class PlayerController : NetworkBehaviour {
+public class PlayerController : NetworkBehaviour
+{
 
     private CameraController cameraController;
 
@@ -15,7 +16,7 @@ public class PlayerController : NetworkBehaviour {
     private Vector3 direction;
     private static float power = 1f;
     private static float maxPower = 36f;
-	public static int timer = 0;
+    public static int timer = 0;
     private bool increase = true;
     private bool canShoot = false;
     private float time;
@@ -25,16 +26,16 @@ public class PlayerController : NetworkBehaviour {
     private Renderer arrowRend;
     private Color color;
 
-	public AudioClip lowHit;
-	public AudioClip midHit;
-	public AudioClip hiHit;
-	private AudioSource source;
+    public AudioClip lowHit;
+    public AudioClip midHit;
+    public AudioClip hiHit;
+    private AudioSource source;
 
     // Use this for initialization
     private void Start()
     {
         playerManager = gameObject.GetComponent<PlayerManager>();
-		source = GetComponent<AudioSource> ();
+        source = GetComponent<AudioSource>();
 
         // set-up on the specific player's device
         if (isLocalPlayer)
@@ -46,42 +47,56 @@ public class PlayerController : NetworkBehaviour {
 
     }
 
-    private void Update() {
+    private void Update()
+    {
         // owning player's inputs
-        if (isLocalPlayer) {
-			if (timer == 0) {
-				playerManager.Activate ();
-			} else {
-				playerManager.Deactivate ();
-				timer -= 1;
-			}
-            if (playerManager.activeState && !shotLock) {
-                color.r = power/maxPower;
-				color.g = power/maxPower;
-				color.b = power/maxPower;
+        if (isLocalPlayer)
+        {
+            if (timer == 0)
+            {
+                playerManager.Activate();
+            }
+            else
+            {
+                playerManager.Deactivate();
+                timer -= 1;
+            }
+            if (playerManager.activeState && !shotLock)
+            {
+                color.r = power / maxPower;
+                color.g = power / maxPower;
+                color.b = power / maxPower;
                 //arrowRend.material.color = color;
                 cameraController.SetArrowIntensity(color);
-                if (Input.GetKeyDown("mouse 0")) {
+                if (Input.GetKeyDown("mouse 0"))
+                {
                     canShoot = true;
                     direction = Camera.main.transform.forward;
                     Vector3 planeNorm = new Vector3(0, 1, 0);
                     direction = Vector3.ProjectOnPlane(direction, planeNorm).normalized;
                 }
-                if (Input.GetKeyDown("mouse 1")) {
+                if (Input.GetKeyDown("mouse 1"))
+                {
                     canShoot = false;
                     power = 1f;
                 }
-                if (canShoot && Input.GetKeyUp("mouse 0")) {
+                if (canShoot && Input.GetKeyUp("mouse 0"))
+                {
                     canShoot = false;
                     playerManager.CmdShootBall(direction, power);
-					if (power > 30) {
-						source.PlayOneShot (hiHit);
-					} else if (power > 20) {
-						source.PlayOneShot (midHit);
-					} else {
-						source.PlayOneShot (lowHit);
-					}
-					timer = 3 * (int)power; 
+                    if (power > 30)
+                    {
+                        source.PlayOneShot(hiHit);
+                    }
+                    else if (power > 20)
+                    {
+                        source.PlayOneShot(midHit);
+                    }
+                    else
+                    {
+                        source.PlayOneShot(lowHit);
+                    }
+                    timer = 3 * (int)power;
                     power = 1f;
                 }
 
@@ -95,11 +110,13 @@ public class PlayerController : NetworkBehaviour {
                 }
             }
 
-            if (Input.GetKeyDown("s")) {
+            if (Input.GetKeyDown("s"))
+            {
                 playerManager.CmdStopBall();
             }
 
-            if (Input.GetKeyDown("r")) {
+            if (Input.GetKeyDown("r"))
+            {
                 playerManager.CmdResetBall();
             }
         }
@@ -107,6 +124,9 @@ public class PlayerController : NetworkBehaviour {
 
     private void LateUpdate()
     {
+        if (cameraController == null)
+            return;
+
         if (canShoot)
             cameraController.LockArrow();
         else
@@ -118,29 +138,43 @@ public class PlayerController : NetworkBehaviour {
             shotLock = false;
     }
 
-    private void FixedUpdate() {
-        if (isLocalPlayer) {
-            if (canShoot) {
-                if (increase) {
-                    if (power > maxPower) {
-                        if (time >= 0) {
+    private void FixedUpdate()
+    {
+        if (isLocalPlayer)
+        {
+            if (canShoot)
+            {
+                if (increase)
+                {
+                    if (power > maxPower)
+                    {
+                        if (time >= 0)
+                        {
                             power = maxPower;
                             time -= Time.fixedUnscaledDeltaTime;
                             return;
-                        } else {
+                        }
+                        else
+                        {
                             increase = false;
                             time = wait;
                             return;
                         }
                     }
                     power += .67f;
-                } else {
-                    if (power < 1f) {
-                        if (time >= 0) {
+                }
+                else
+                {
+                    if (power < 1f)
+                    {
+                        if (time >= 0)
+                        {
                             power = 1f;
                             time -= Time.fixedUnscaledDeltaTime;
                             return;
-                        } else {
+                        }
+                        else
+                        {
                             increase = true;
                             time = wait;
                             return;
